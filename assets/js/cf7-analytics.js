@@ -102,20 +102,25 @@ jQuery(document).ready(function($) {
         const metrics = ['pontualidade', 'plano_ensino', 'comunicacao', 'didatica', 'motivacao'];
         const labels = ['Pontualidade', 'Plano de Ensino', 'Comunicação', 'Didática', 'Motivação'];
         
-        // Calculate averages
+        // Calculate averages (excluindo "Não se aplica" da média)
         const averages = metrics.map(metric => {
             const values = submissions.map(s => {
                 const val = s[metric];
+                if (val === 'Não se aplica') return null;
                 return val === 'Alto' ? 3 : (val === 'Médio' ? 2 : 1);
-            });
-            return parseFloat((values.reduce((a, b) => a + b, 0) / values.length).toFixed(2));
+            }).filter(v => v !== null); // Remove os "Não se aplica" do cálculo
+
+            return values.length > 0 ? 
+                parseFloat((values.reduce((a, b) => a + b, 0) / values.length).toFixed(2)) : 
+                0;
         });
 
         // Update Radar Chart
-        const radarCtx = document.getElementById('radar-chart');
         if (radarChart) {
             radarChart.destroy();
         }
+
+        const radarCtx = document.getElementById('radar-chart');
         if (radarCtx) {
             radarChart = new Chart(radarCtx, {
                 type: 'radar',
@@ -143,6 +148,15 @@ jQuery(document).ready(function($) {
                                 stepSize: 1
                             }
                         }
+                    },
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return `Média: ${context.raw.toFixed(2)}`;
+                                }
+                            }
+                        }
                     }
                 }
             });
@@ -153,7 +167,8 @@ jQuery(document).ready(function($) {
             const metricCounts = {
                 'Alto': 0,
                 'Médio': 0,
-                'Baixo': 0
+                'Baixo': 0,
+                'Não se aplica': 0
             };
             submissions.forEach(s => {
                 const val = s[metric];
@@ -165,10 +180,11 @@ jQuery(document).ready(function($) {
         });
 
         // Update Bar Chart
-        const barCtx = document.getElementById('bar-chart');
         if (barChart) {
             barChart.destroy();
         }
+
+        const barCtx = document.getElementById('bar-chart');
         if (barCtx) {
             barChart = new Chart(barCtx, {
                 type: 'bar',
@@ -189,6 +205,11 @@ jQuery(document).ready(function($) {
                             label: 'Baixo',
                             data: counts.map(c => c.Baixo),
                             backgroundColor: 'rgba(255, 99, 132, 0.8)'
+                        },
+                        {
+                            label: 'Não se aplica',
+                            data: counts.map(c => c['Não se aplica']),
+                            backgroundColor: 'rgba(156, 156, 156, 0.8)' // Cinza para "Não se aplica"
                         }
                     ]
                 },
@@ -201,6 +222,21 @@ jQuery(document).ready(function($) {
                         y: {
                             stacked: true,
                             beginAtZero: true
+                        }
+                    },
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const label = context.dataset.label || '';
+                                    const value = context.raw || 0;
+                                    const total = context.chart.data.datasets.reduce((acc, dataset) => {
+                                        return acc + (dataset.data[context.dataIndex] || 0);
+                                    }, 0);
+                                    const percentage = ((value / total) * 100).toFixed(1);
+                                    return `${label}: ${value} (${percentage}%)`;
+                                }
+                            }
                         }
                     }
                 }
