@@ -101,100 +101,101 @@ class CF7_Analytics_Dashboard {
             wp_die('Unauthorized access');
         }
 
-        $forms = get_posts(array(
-            'post_type' => 'wpcf7_contact_form',
-            'posts_per_page' => -1,
-            'orderby' => 'title',
-            'order' => 'ASC'
-        ));
         ?>
         <div class="wrap cf7-analytics-wrap">
             <h1><?php echo esc_html__('Contact Form 7 Analytics', 'cf7-analytics'); ?></h1>
             
-            <!-- Container principal -->
-            <div class="cf7-analytics-container">
-                <!-- Lista de formulários -->
-                <div class="cf7-forms-list">
-                    <?php 
-                    $forms = get_posts(array(
-                        'post_type' => 'wpcf7_contact_form',
-                        'posts_per_page' => -1,
-                        'orderby' => 'title',
-                        'order' => 'ASC'
-                    ));
+            <div class="cf7-analytics-layout">
+                <!-- Sidebar com lista de formulários -->
+                <div class="cf7-sidebar">
+                    <div class="sidebar-header">
+                        <h2><?php esc_html_e('Formulários', 'cf7-analytics'); ?></h2>
+                        <input type="text" id="form-search" class="form-search" placeholder="Buscar formulário...">
+                    </div>
+                    
+                    <div class="cf7-forms-list">
+                        <?php 
+                        $forms = get_posts(array(
+                            'post_type' => 'wpcf7_contact_form',
+                            'posts_per_page' => -1,
+                            'orderby' => 'title',
+                            'order' => 'ASC'
+                        ));
 
-                    if (empty($forms)) {
-                        echo '<div class="notice notice-warning"><p>' . 
-                             esc_html__('Nenhum formulário encontrado.', 'cf7-analytics') . 
-                             '</p></div>';
-                    } else {
-                        foreach ($forms as $form): 
-                            ?>
-                            <div class="form-item">
-                                <h2>
+                        if (empty($forms)) {
+                            echo '<div class="notice notice-warning"><p>' . 
+                                 esc_html__('Nenhum formulário encontrado.', 'cf7-analytics') . 
+                                 '</p></div>';
+                        } else {
+                            echo '<ul class="forms-list">';
+                            foreach ($forms as $form): 
+                                ?>
+                                <li class="form-item">
                                     <a href="#" class="form-link" 
                                        data-form-id="<?php echo esc_attr($form->ID); ?>"
                                        data-nonce="<?php echo wp_create_nonce('view_form_' . $form->ID); ?>">
                                         <?php echo esc_html($form->post_title); ?>
                                     </a>
-                                </h2>
-                            </div>
-                            <?php 
-                        endforeach; 
-                    }
-                    ?>
+                                </li>
+                                <?php 
+                            endforeach;
+                            echo '</ul>';
+                        }
+                        ?>
+                    </div>
                 </div>
 
-                <!-- Detalhes do formulário -->
-                <div id="form-details" style="display: none;">
-                    <!-- Loading indicator -->
-                    <div id="form-loading" class="form-loading" style="display: none;">
-                        <span class="spinner is-active"></span>
-                        <span class="loading-text"><?php esc_html_e('Carregando...', 'cf7-analytics'); ?></span>
-                    </div>
+                <!-- Área principal de conteúdo -->
+                <div class="cf7-main-content">
+                    <div id="form-details" style="display: none;">
+                        <!-- Loading indicator -->
+                        <div id="form-loading" class="form-loading" style="display: none;">
+                            <span class="spinner is-active"></span>
+                            <span class="loading-text"><?php esc_html_e('Carregando...', 'cf7-analytics'); ?></span>
+                        </div>
 
-                    <!-- Conteúdo do Gutenberg -->
-                    <div id="gutenberg-content" class="gutenberg-content card">
-                        <div class="content-header"></div>
-                        <div class="content-blocks"></div>
-                    </div>
+                        <!-- Conteúdo do Gutenberg -->
+                        <div id="gutenberg-content" class="gutenberg-content card-chart-analitycs">
+                            <div class="content-header"></div>
+                            <div class="content-blocks"></div>
+                        </div>
 
-                    <!-- Gráficos -->
-                    <div class="charts-wrapper card">
-                        <div class="chart-container">
-                            <h3><?php esc_html_e('Média das Avaliações', 'cf7-analytics'); ?></h3>
-                            <div class="chart-area">
-                                <canvas id="radar-chart"></canvas>
+                        <!-- Gráficos -->
+                        <div class="charts-wrapper card-chart-analitycs">
+                            <div class="chart-container">
+                                <h3><?php esc_html_e('Média das Avaliações', 'cf7-analytics'); ?></h3>
+                                <div class="chart-area">
+                                    <canvas id="radar-chart"></canvas>
+                                </div>
+                            </div>
+                            <div class="chart-container">
+                                <h3><?php esc_html_e('Distribuição das Avaliações', 'cf7-analytics'); ?></h3>
+                                <div class="chart-area">
+                                    <canvas id="bar-chart"></canvas>
+                                </div>
                             </div>
                         </div>
-                        <div class="chart-container">
-                            <h3><?php esc_html_e('Distribuição das Avaliações', 'cf7-analytics'); ?></h3>
-                            <div class="chart-area">
-                                <canvas id="bar-chart"></canvas>
+                        
+                        <!-- Tabela de submissões -->
+                        <div class="submissions-table-container card-chart-analitycs">
+                            <h3><?php esc_html_e('Submissões Detalhadas', 'cf7-analytics'); ?></h3>
+                            <div class="table-responsive">
+                                <table class="wp-list-table widefat fixed striped">
+                                    <thead>
+                                        <tr>
+                                            <th><?php esc_html_e('Nome do Aluno', 'cf7-analytics'); ?></th>
+                                            <th><?php esc_html_e('Email', 'cf7-analytics'); ?></th>
+                                            <th><?php esc_html_e('Pontualidade', 'cf7-analytics'); ?></th>
+                                            <th><?php esc_html_e('Plano de Ensino', 'cf7-analytics'); ?></th>
+                                            <th><?php esc_html_e('Comunicação', 'cf7-analytics'); ?></th>
+                                            <th><?php esc_html_e('Didática', 'cf7-analytics'); ?></th>
+                                            <th><?php esc_html_e('Motivação', 'cf7-analytics'); ?></th>
+                                            <th><?php esc_html_e('Sugestões', 'cf7-analytics'); ?></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="submissions-data"></tbody>
+                                </table>
                             </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Tabela de submissões -->
-                    <div class="submissions-table-container card">
-                        <h3><?php esc_html_e('Submissões Detalhadas', 'cf7-analytics'); ?></h3>
-                        <div class="table-responsive">
-                            <table class="wp-list-table widefat fixed striped">
-                                <thead>
-                                    <tr>
-                                        <th><?php esc_html_e('Nome do Aluno', 'cf7-analytics'); ?></th>
-                                        <th><?php esc_html_e('Email', 'cf7-analytics'); ?></th>
-                                        <th><?php esc_html_e('Pontualidade', 'cf7-analytics'); ?></th>
-                                        <th><?php esc_html_e('Plano de Ensino', 'cf7-analytics'); ?></th>
-                                        <th><?php esc_html_e('Comunicação', 'cf7-analytics'); ?></th>
-                                        <th><?php esc_html_e('Didática', 'cf7-analytics'); ?></th>
-                                        <th><?php esc_html_e('Motivação', 'cf7-analytics'); ?></th>
-                                        <th><?php esc_html_e('Sugestões', 'cf7-analytics'); ?></th>
-                                    </tr>
-                                </thead>
-                                <tbody id="submissions-data">
-                                </tbody>
-                            </table>
                         </div>
                     </div>
                 </div>

@@ -1,50 +1,186 @@
-.cf7-forms-list {
-    margin: 20px 0;
+/* Layout principal */
+.cf7-analytics-wrap {
+    margin: 20px 20px 0 0;
+    max-width: 100%;
 }
 
-.form-item {
+.cf7-analytics-layout {
+    display: flex;
+    gap: 30px;
+    margin-top: 20px;
+    position: relative;
+}
+
+/* Sidebar mais compacta */
+.cf7-sidebar {
+    width: 230px; /* Reduzida de 280px para 220px */
+    flex-shrink: 0;
     background: #fff;
-    padding: 15px;
-    margin-bottom: 10px;
     border: 1px solid #ccd0d4;
+    border-radius: 4px;
     box-shadow: 0 1px 1px rgba(0,0,0,.04);
+    position: sticky;
+    top: 32px;
+    max-height: calc(100vh - 52px);
+    overflow-y: auto;
+    padding: 24px;
 }
 
-.form-item h2 {
+/* Área de conteúdo principal - ocupando mais espaço */
+.cf7-main-content {
+    flex-grow: 1;
+    min-width: 0;
+    width: calc(100% - 250px); /* Garante que ocupe o máximo de espaço possível */
+}
+
+/* Cards com padding otimizado */
+.card-chart-analitycs {
+    background: #fff;
+    border: 1px solid #ccd0d4;
+    border-radius: 4px;
+    box-shadow: 0 1px 1px rgba(0,0,0,.04);
+    margin-bottom: 20px;
+    padding: 24px;
+    /* width: 100%; */
+}
+
+/* Gráficos em grid com colunas mais largas */
+.charts-wrapper {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
+}
+
+.chart-container {
+    padding: 20px;
+    background: #fff;
+    border: 1px solid #ccd0d4;
+    border-radius: 4px;
+    min-height: 400px; /* Altura mínima para os gráficos */
+    box-sizing: border-box;
+}
+
+.chart-area {
+    position: relative;
+    height: 350px; /* Altura aumentada */
+    margin-top: 15px;
+}
+
+/* Ajustes da tabela */
+.submissions-table-container {
+    margin-top: 30px;
+}
+
+.table-responsive {
+    margin: 0 -15px; /* Espaço negativo para tabela mais larga */
+    padding: 0 15px;
+    overflow-x: auto;
+}
+
+.wp-list-table {
+    width: 100%;
+    border-spacing: 0;
+}
+
+/* Breakpoints atualizados */
+@media screen and (min-width: 1600px) {
+    .cf7-main-content {
+        max-width: 1400px; /* Limita a largura máxima em telas muito grandes */
+    }
+}
+
+@media screen and (max-width: 1400px) {
+    .charts-wrapper {
+        gap: 20px;
+    }
+}
+
+@media screen and (max-width: 1200px) {
+    .charts-wrapper {
+        grid-template-columns: 1fr;
+    }
+
+    .chart-area {
+        height: 400px;
+    }
+}
+
+@media screen and (max-width: 782px) {
+    .cf7-analytics-layout {
+        flex-direction: column;
+    }
+
+    .cf7-sidebar {
+        width: 100%;
+        position: relative;
+        top: 0;
+        max-height: none;
+    }
+
+    .cf7-main-content {
+        width: 100%;
+    }
+}
+
+/* Ajustes de tipografia para melhor legibilidade */
+.chart-container h3 {
+    font-size: 16px;
+    margin: 0 0 20px 0;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #eee;
+}
+
+/* Ajustes da tabela para melhor visualização */
+.wp-list-table th,
+.wp-list-table td {
+    padding: 12px;
+}
+
+.wp-list-table th {
+    font-weight: 600;
+    text-align: left;
+    border-bottom: 1px solid #ccd0d4;
+}
+
+/* Estilos do formulário de busca */
+.form-search {
+    width: 100%;
+    padding: 6px 8px;
+    border: 1px solid #ccd0d4;
+    border-radius: 4px;
     margin: 0;
-    font-size: 1.3em;
+}
+
+/* Ajustes da lista de formulários */
+.forms-list {
+    margin: 0;
+    padding: 0;
+    margin-top: 20px;
 }
 
 .form-link {
+    padding: 4px 0;
+    display: block;
     text-decoration: none;
-    color: #0073aa;
+    border-left: 3px solid transparent;
+    transition: all 0.2s ease;
+    font-size: 13px;
+    line-height: 1.4;
+    word-break: break-word;
 }
 
-.form-link:hover {
-    color: #00a0d2;
+/* Melhorias visuais gerais */
+.gutenberg-content {
+    padding: 30px;
+    margin-bottom: 30px;
 }
 
-.charts-container {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 20px;
-    margin: 20px 0;
-    background: #fff;
-    padding: 20px;
-    border: 1px solid #ccd0d4;
-    box-shadow: 0 1px 1px rgba(0,0,0,.04);
+.content-header h2 {
+    font-size: 20px;
+    margin-bottom: 20px;
 }
 
-.submissions-table-container {
-    background: #fff;
-    padding: 20px;
-    margin: 20px 0;
-    border: 1px solid #ccd0d4;
-    box-shadow: 0 1px 1px rgba(0,0,0,.04);
-}
-
-@media (max-width: 782px) {
-    .charts-container {
-        grid-template-columns: 1fr;
-    }
+.content-blocks {
+    font-size: 14px;
+    line-height: 1.6;
 }

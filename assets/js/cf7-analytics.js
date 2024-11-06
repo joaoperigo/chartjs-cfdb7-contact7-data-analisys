@@ -32,11 +32,11 @@ jQuery(document).ready(function($) {
                     
                     // Primeiro, mostra o container principal
                     $('#form-details').html(`
-                        <div id="gutenberg-content" class="gutenberg-content card">
+                        <div id="gutenberg-content" class="gutenberg-content card-chart-analitycs">
                             <div class="content-header"></div>
                             <div class="content-blocks"></div>
                         </div>
-                        <div class="charts-wrapper card">
+                        <div class="charts-wrapper card-chart-analitycs">
                             <div class="chart-container">
                                 <h3>Média das Avaliações</h3>
                                 <div class="chart-area">
@@ -50,7 +50,7 @@ jQuery(document).ready(function($) {
                                 </div>
                             </div>
                         </div>
-                        <div class="submissions-table-container card">
+                        <div class="submissions-table-container card-chart-analitycs">
                             <h3>Submissões Detalhadas</h3>
                             <div class="table-responsive">
                                 <table class="wp-list-table widefat fixed striped">
@@ -139,6 +139,7 @@ jQuery(document).ready(function($) {
                     }]
                 },
                 options: {
+                    responsive: true,
                     scales: {
                         r: {
                             beginAtZero: true,
@@ -358,4 +359,23 @@ jQuery(document).ready(function($) {
             .replace(/"/g, "&quot;")
             .replace(/'/g, "&#039;");
     }
+});
+
+
+jQuery(document).ready(function($) {
+    // Funcionalidade de busca
+    $('#form-search').on('input', function() {
+        const searchTerm = $(this).val().toLowerCase();
+        
+        $('.forms-list .form-item').each(function() {
+            const formTitle = $(this).find('.form-link').text().toLowerCase();
+            $(this).toggle(formTitle.includes(searchTerm));
+        });
+    });
+
+    // Marca o formulário ativo
+    $('.form-link').on('click', function() {
+        $('.form-link').removeClass('active');
+        $(this).addClass('active');
+    });
 });
