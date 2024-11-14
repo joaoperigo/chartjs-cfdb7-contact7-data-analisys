@@ -368,8 +368,53 @@ jQuery(document).ready(function($) {
         const searchTerm = $(this).val().toLowerCase();
         
         $('.forms-list .form-item').each(function() {
-            const formTitle = $(this).find('.form-link').text().toLowerCase();
-            $(this).toggle(formTitle.includes(searchTerm));
+            const $item = $(this);
+            const $link = $item.find('.form-link');
+            const formTitle = $link.text().toLowerCase();
+            const gutenbergData = $link.find('.form-meta').text().toLowerCase();
+            
+            // Busca no título e no conteúdo do Gutenberg
+            const found = formTitle.includes(searchTerm) || gutenbergData.includes(searchTerm);
+            
+            // Se encontrou, também destaca o texto encontrado
+            if (found && searchTerm) {
+                // Destaca no título se encontrou
+                if (formTitle.includes(searchTerm)) {
+                    const highlightedTitle = $link.contents().first().text().replace(
+                        new RegExp(searchTerm, 'gi'),
+                        match => `<mark>${match}</mark>`
+                    );
+                    $link.contents().first().replaceWith(highlightedTitle);
+                }
+                
+                // Mostra preview do conteúdo Gutenberg se encontrou lá
+                if (gutenbergData.includes(searchTerm)) {
+                    let preview = gutenbergData;
+                    const index = preview.indexOf(searchTerm);
+                    const start = Math.max(0, index - 30);
+                    const end = Math.min(preview.length, index + searchTerm.length + 30);
+                    preview = '...' + preview.substring(start, end) + '...';
+                    preview = preview.replace(
+                        new RegExp(searchTerm, 'gi'),
+                        match => `<mark>${match}</mark>`
+                    );
+                    
+                    // Adiciona ou atualiza preview
+                    let $preview = $item.find('.gutenberg-preview');
+                    if (!$preview.length) {
+                        $preview = $('<div class="gutenberg-preview"></div>').appendTo($item);
+                    }
+                    $preview.html(preview);
+                } else {
+                    $item.find('.gutenberg-preview').remove();
+                }
+            } else {
+                // Remove highlights e preview se não encontrou
+                $item.find('mark').contents().unwrap();
+                $item.find('.gutenberg-preview').remove();
+            }
+            
+            $item.toggle(found);
         });
     });
 

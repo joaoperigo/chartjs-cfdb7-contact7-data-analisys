@@ -101,6 +101,8 @@ class CF7_Analytics_Dashboard {
             wp_die('Unauthorized access');
         }
 
+        // Busca formulários e seus dados Gutenberg
+        $forms = $this->get_forms_with_data();
         ?>
         <div class="wrap cf7-analytics-wrap">
             <h1><?php echo esc_html__('Contact Form 7 Analytics', 'cf7-analytics'); ?></h1>
@@ -115,13 +117,6 @@ class CF7_Analytics_Dashboard {
                     
                     <div class="cf7-forms-list">
                         <?php 
-                        $forms = get_posts(array(
-                            'post_type' => 'wpcf7_contact_form',
-                            'posts_per_page' => -1,
-                            'orderby' => 'title',
-                            'order' => 'ASC'
-                        ));
-
                         if (empty($forms)) {
                             echo '<div class="notice notice-warning"><p>' . 
                                  esc_html__('Nenhum formulário encontrado.', 'cf7-analytics') . 
@@ -129,12 +124,19 @@ class CF7_Analytics_Dashboard {
                         } else {
                             echo '<ul class="forms-list">';
                             foreach ($forms as $form): 
+                                $gutenberg_data = $this->get_gutenberg_preview($form);
                                 ?>
                                 <li class="form-item">
                                     <a href="#" class="form-link" 
                                        data-form-id="<?php echo esc_attr($form->ID); ?>"
-                                       data-nonce="<?php echo wp_create_nonce('view_form_' . $form->ID); ?>">
+                                       data-nonce="<?php echo wp_create_nonce('view_form_' . $form->ID); ?>"
+                                       data-gutenberg="<?php echo esc_attr(wp_json_encode($gutenberg_data)); ?>">
                                         <?php echo esc_html($form->post_title); ?>
+                                        <?php if (!empty($gutenberg_data)): ?>
+                                            <span class="form-meta" style="display: none;">
+                                                <?php echo esc_html($gutenberg_data['text']); ?>
+                                            </span>
+                                        <?php endif; ?>
                                     </a>
                                 </li>
                                 <?php 
@@ -202,6 +204,49 @@ class CF7_Analytics_Dashboard {
             </div>
         </div>
         <?php
+    }
+
+    private function get_forms_with_data() {
+        $forms = get_posts(array(
+            'post_type' => 'wpcf7_contact_form',
+            'posts_per_page' => -1,
+            'orderby' => 'title',
+            'order' => 'ASC'
+        ));
+
+        return $forms;
+    }
+
+    private function get_gutenberg_preview($cf7_form) {
+        // Busca post do tipo questionario com mesmo título
+        global $wpdb;
+        
+        $post = $wpdb->get_row($wpdb->prepare("
+            SELECT * 
+            FROM {$wpdb->posts} 
+            WHERE post_type = 'questionario' 
+            AND post_status = 'publish'
+            AND post_title = %s
+        ", $cf7_form->post_title));
+
+        if (!$post) {
+            return null;
+        }
+
+        // Parse blocks do Gutenberg
+        $blocks = parse_blocks($post->post_content);
+        $text_content = '';
+
+        foreach ($blocks as $block) {
+            if (!empty($block['innerHTML'])) {
+                $text_content .= ' ' . wp_strip_all_tags($block['innerHTML']);
+            }
+        }
+
+        return array(
+            'post_id' => $post->ID,
+            'text' => trim($text_content)
+        );
     }
 
     public function handle_get_form_data() {
