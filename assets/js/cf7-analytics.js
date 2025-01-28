@@ -30,6 +30,11 @@ jQuery(document).ready(function($) {
                     const data = response.data;
                     console.log('Dados do post:', data.post_data); // Log dos dados do post
                     
+                    
+                    const hasProfessorAndData = data.submissions.length > 0 && 
+                            data.submissions[0].professor != '' && 
+                            data.submissions[0].data != '';
+
                     // Primeiro, mostra o container principal
                     $('#form-details').html(`
                         <div id="gutenberg-content" class="gutenberg-content card-chart-analitycs">
@@ -58,6 +63,10 @@ jQuery(document).ready(function($) {
                                         <tr>
                                             <th>Nome do Aluno</th>
                                             <th>Email</th>
+                                            ${hasProfessorAndData ? `
+                                            <th>Professor</th>
+                                            <th>Data</th>
+                                            ` : ''}
                                             <th>Pontualidade</th>
                                             <th>Plano de Ensino</th>
                                             <th>Comunicação</th>
@@ -253,6 +262,8 @@ jQuery(document).ready(function($) {
             const row = $('<tr>');
             row.append(`<td>${escapeHtml(submission.nome)}</td>`);
             row.append(`<td>${escapeHtml(submission.email)}</td>`);
+            if(submission.professor) row.append(`<td>${escapeHtml(submission.professor)}</td>`);
+            if(submission.data) row.append(`<td>${escapeHtml(submission.data)}</td>`);
             row.append(`<td>${escapeHtml(submission.pontualidade)}</td>`);
             row.append(`<td>${escapeHtml(submission.plano_ensino)}</td>`);
             row.append(`<td>${escapeHtml(submission.comunicacao)}</td>`);

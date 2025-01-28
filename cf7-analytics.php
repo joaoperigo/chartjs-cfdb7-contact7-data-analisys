@@ -3,7 +3,7 @@
  * Plugin Name: CF7 Analytics Dashboard
  * Description: Analytics dashboard for Contact Form 7 submissions with Gutenberg support
  * Version: 1.0
- * Author: Your Name
+ * Author: Joao Perigo
  * License: GPL v2 or later
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
  */
@@ -26,11 +26,31 @@ class CF7_Analytics_Dashboard {
     }
 
     private function __construct() {
+        // Menu sempre é registrado
         add_action('admin_menu', array($this, 'add_menu_page'));
-        add_action('admin_enqueue_scripts', array($this, 'enqueue_scripts'));
-        add_action('wp_ajax_get_form_data', array($this, 'handle_get_form_data'));
-        
-        error_log('CF7 Analytics: Class constructed');
+    
+        // Outras funcionalidades só carregam quando necessário
+        if ($this->should_load_plugin()) {
+            add_action('admin_enqueue_scripts', array($this, 'enqueue_scripts'));
+            add_action('wp_ajax_get_form_data', array($this, 'handle_get_form_data'));
+        }
+    }
+    
+    private function should_load_plugin() {
+        // Se for AJAX do nosso plugin, permite
+        if (defined('DOING_AJAX') && DOING_AJAX) {
+            $action = $_POST['action'] ?? '';
+            return $action === 'get_form_data';
+        }
+    
+        // Se não for admin, bloqueia
+        if (!is_admin()) {
+            return false;
+        }
+    
+        // Permite apenas na página específica do plugin
+        $current_page = $_GET['page'] ?? '';
+        return $current_page === 'cf7-analytics';
     }
 
     public function enqueue_scripts($hook) {
@@ -187,6 +207,8 @@ class CF7_Analytics_Dashboard {
                                         <tr>
                                             <th><?php esc_html_e('Nome do Aluno', 'cf7-analytics'); ?></th>
                                             <th><?php esc_html_e('Email', 'cf7-analytics'); ?></th>
+                                            <th><?php esc_html_e('Professor', 'cf7-analytics'); ?></th>
+                                            <th><?php esc_html_e('Data', 'cf7-analytics'); ?></th>
                                             <th><?php esc_html_e('Pontualidade', 'cf7-analytics'); ?></th>
                                             <th><?php esc_html_e('Plano de Ensino', 'cf7-analytics'); ?></th>
                                             <th><?php esc_html_e('Comunicação', 'cf7-analytics'); ?></th>
@@ -388,6 +410,8 @@ class CF7_Analytics_Dashboard {
             $processed_data[] = array(
                 'nome' => isset($form_data['nome-aluno']) ? sanitize_text_field($form_data['nome-aluno']) : '',
                 'email' => isset($form_data['email-aluno']) ? sanitize_email($form_data['email-aluno']) : '',
+                'professor' => isset($form_data['monitor-professor']) ? sanitize_text_field($form_data['monitor-professor']) : '',
+                'data' => isset($form_data['data']) ? sanitize_text_field($form_data['data']) : '',
                 'pontualidade' => isset($form_data['pontualidade'][0]) ? $form_data['pontualidade'][0] : '',
                 'plano_ensino' => isset($form_data['plano-de-ensino'][0]) ? $form_data['plano-de-ensino'][0] : '',
                 'comunicacao' => isset($form_data['comunicacao'][0]) ? $form_data['comunicacao'][0] : '',
